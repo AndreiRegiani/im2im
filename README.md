@@ -12,7 +12,7 @@ Example for sending and receiving messages between netcat ⇔ Telegram Bot API.
 
 ## Implementation
 
-* Go 1.20, each bridge spawns two goroutines (sender/receiver) and uses one channel to communicate the message.
+* Go 1.20, each bridge spawns two goroutines (sender/receiver) and uses one channel to relay the message.
 
 ## Installation
 
@@ -37,6 +37,23 @@ cp im2im.yaml.example im2im.yaml
 ### im2im.yaml
 
 ```yaml
+bridges:
+  bridge1:
+      from:
+        netcat:
+          port: 9001
+      to:
+        telegram_bot:
+          token: ABCDEFGHIJKLMNOPQRSTUVWXYZ
+          chat_id: 123456789
+  bridge2:
+    from:
+      telegram_bot:
+          token: ABCDEFGHIJKLMNOPQRSTUVWXYZ
+          chat_id: 123456789
+    to:
+      netcat:
+          port: 9002
 ```
 
 ### Running
@@ -52,8 +69,8 @@ nc -l 9002
 ## Supported protocols
 
 * netcat (TCP socket)
-* Telegram Bot (coming soon)
-* ...?
+* Telegram Bot [WIP]
+* ...
 
 ## Contributing
 

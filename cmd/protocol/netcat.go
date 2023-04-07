@@ -14,13 +14,13 @@ type Netcat struct {
 func (t *Netcat) InitFrom(channel chan string) {
 	log.Printf("Netcat: InitFrom: port=%d", t.Port)
 
-	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", t.Port))
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", t.Port))
 	if err != nil {
 		log.Fatalf("Error creating listener: %v\n", err)
 	}
-	defer ln.Close()
+	defer listener.Close()
 
-	conn, err := ln.Accept()
+	conn, err := listener.Accept()
 	if err != nil {
 		log.Fatalf("Error accepting connection: %v\n", err)
 	}

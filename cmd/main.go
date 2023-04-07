@@ -9,7 +9,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func main() {
+func loadConfig() protocol.Config {
 	configFlag := flag.String("config", "im2im.yaml", "Path to the config YAML file")
 	flag.Parse()
 
@@ -24,8 +24,14 @@ func main() {
 		log.Fatalf("Error unmarshaling YAML: %v", err)
 	}
 
+	return config
+}
+
+func runBridges() {
+	config := loadConfig()
+
 	for label, bridge := range config.Bridges {
-		log.Printf("Bridge: %s", label)
+		log.Printf("* Bridge: %s", label)
 
 		channel := make(chan string)
 
@@ -47,4 +53,8 @@ func main() {
 	}
 
 	select {}
+}
+
+func main() {
+	runBridges()
 }
