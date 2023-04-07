@@ -2,6 +2,7 @@ APP_NAME := im2im
 SRC_PATH := cmd/im2im.go
 BUILD_DIR := ./build
 GOBIN := $(shell go env GOPATH)/bin
+IMAGE_NAME := im2im
 
 .PHONY: all
 all: build
@@ -30,3 +31,8 @@ clean:
 install:
 	@echo "Installing dependencies..."
 	@go mod download
+
+.PHONY: docker-build
+docker-build:
+	@echo "Building Docker image..."
+	@docker build -t $(IMAGE_NAME) .
