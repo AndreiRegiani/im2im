@@ -56,20 +56,37 @@ bridges:
           port: 9002
 ```
 
-### Running
+Minimal example:
 
-```bash
-nc localhost 9001
+```yaml
+bridges:
+  bridge0:
+      from:
+        netcat:
+          port: 9001
+      to:
+        netcat:
+          port: 9002
 ```
+
+### Running
 
 ```bash
 nc -l 9002
 ```
 
+```bash
+go run cmd/im2im.go
+```
+
+```bash
+nc localhost 9001
+```
+
 ## Supported protocols
 
 * netcat (TCP socket)
-* Telegram Bot [WIP]
+* Telegram Bot `[WIP]`
 * ...
 
 ## Contributing
