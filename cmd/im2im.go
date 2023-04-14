@@ -48,7 +48,7 @@ func runBridges() {
 		}
 
 		if bridge.To.TelegramBot != nil {
-			log.Printf("Warning: protocol [to]TelegramBot is not supported")
+			go bridge.To.TelegramBot.InitTo(channel)
 		}
 	}
 

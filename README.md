@@ -88,7 +88,7 @@ nc localhost 9001
 ## Supported protocols
 
 * netcat (TCP socket)
-* Telegram Bot [soon]
+* Telegram Bot
 * ...
 
 ## Contributing
