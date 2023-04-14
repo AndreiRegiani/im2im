@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"time"
 )
 
 type Netcat struct {
@@ -43,18 +44,29 @@ func (t *Netcat) InitFrom(channel chan string) {
 func (t *Netcat) InitTo(channel chan string) {
 	log.Printf("Netcat: InitTo: port=%d", t.Port)
 
-	conn, err := net.Dial("tcp", fmt.Sprintf(":%d", t.Port))
+	for {
+		t.initConnection(channel)
+		time.Sleep(1 * time.Second)
+	}
+}
+
+func (t *Netcat) initConnection(channel chan string) {
+	var conn net.Conn
+	var err error
+
+	conn, err = net.Dial("tcp", fmt.Sprintf(":%d", t.Port))
 	if err != nil {
 		fmt.Println("Error connecting:", err.Error())
 		return
 	}
+
 	defer conn.Close()
 
 	log.Printf("Netcat: connection accepted: %s", conn.RemoteAddr().String())
 
 	for {
 		message := <-channel
-		_, err = conn.Write([]byte(message + "\n"))
+		_, err := conn.Write([]byte(message + "\n"))
 		if err != nil {
 			fmt.Println("Error sending message:", err.Error())
 			return
