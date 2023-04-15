@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -21,7 +22,8 @@ type TelegramResult struct {
 }
 
 type TelegramItem struct {
-	Message TelegramItemMessage `json:"message"`
+	Message  TelegramItemMessage `json:"message"`
+	UpdateID int64               `json:"update_id"`
 }
 
 type TelegramItemMessage struct {
@@ -34,31 +36,37 @@ type TelegramItemChat struct {
 }
 
 func (tb *TelegramBot) InitFrom(channel chan string) {
+	var offset int64
+
 	for {
-		tb.polling(channel)
+		tb.fromPolling(channel, &offset)
 		time.Sleep(5 * time.Second)
 	}
 }
 
-func (tb *TelegramBot) polling(channel chan string) {
+func (tb *TelegramBot) fromPolling(channel chan string, offset *int64) {
 	log.Println("Polling")
 
 	client := http.Client{Timeout: 10 * time.Second}
 	url := fmt.Sprintf("https://api.telegram.org/bot%s/getUpdates", tb.Token)
 
+	if *offset != 0 {
+		url = fmt.Sprintf("%s?offset=%d", url, *offset)
+	}
+
 	resp, err := client.Get(url)
 	if err != nil {
-		log.Println("Error getting getUpdates")
+		log.Println("TelegramBot: InitFrom: error fetching getUpdates")
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("Status code is not 200, response: %d", resp.StatusCode)
+		log.Printf("TelegramBot: InitFrom: status code: %d", resp.StatusCode)
 		return
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Println("Error reading res.Body")
+		log.Println("TelegramBot: InitFrom: error reading response body")
 		return
 	}
 
@@ -66,15 +74,25 @@ func (tb *TelegramBot) polling(channel chan string) {
 
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		log.Println("Error unmarshaling JSON")
+		log.Println("TelegramBot: InitFrom: error unmarshaling JSON")
 		return
 	}
 
+	var newOffset int64
+
 	for _, item := range result.Result {
 		message := item.Message.Text
-		log.Printf("Telegram: to: \"%s\"", message)
-		channel <- message
+		log.Printf("TelegramBot: from: \"%s\"", message)
+		newOffset = item.UpdateID + 1
+
+		// Prevent re-sending the historic of messages that happens when first
+		// polling without an offset
+		if *offset != 0 {
+			channel <- message
+		}
 	}
+
+	*offset = newOffset
 }
 
 func (tb *TelegramBot) InitTo(channel chan string) {
@@ -82,7 +100,12 @@ func (tb *TelegramBot) InitTo(channel chan string) {
 
 	for {
 		message := <-channel
-		url := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", tb.Token)
+		log.Printf("TelegramBot: to: \"%s\"", message)
+
+		// Telegram Bot API doesn't allow empty messages
+		if strings.TrimSpace(message) == "" {
+			continue
+		}
 
 		data := map[string]interface{}{
 			"chat_id": tb.ChatID,
@@ -91,20 +114,21 @@ func (tb *TelegramBot) InitTo(channel chan string) {
 
 		jsonData, err := json.Marshal(data)
 		if err != nil {
-			log.Println("Error serialiazing JSON")
+			log.Println("TelegramBot: InitTo: error serialiazing JSON")
 			return
 		}
 
+		url := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", tb.Token)
+
 		resp, err := client.Post(url, "application/json", bytes.NewBuffer(jsonData))
 		if err != nil {
-			log.Println("Error posting to Telegram Bot API")
+			log.Println("TelegramBot: InitTo: error posting to Telegram Bot API")
 			return
 		}
 
 		if resp.StatusCode != http.StatusOK {
-			log.Printf("Status code is not 200, response: %d", resp.StatusCode)
+			log.Printf("TelegramBot: InitTo: status code: %d", resp.StatusCode)
 			return
 		}
-
 	}
 }
