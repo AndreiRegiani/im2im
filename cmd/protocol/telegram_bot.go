@@ -78,6 +78,11 @@ func (tb *TelegramBot) fromPolling(channel chan string, offset *int64) {
 		return
 	}
 
+	if !result.Ok {
+		log.Println("TelegramBot: InitFrom: result.Ok is false")
+		return
+	}
+
 	var newOffset int64
 
 	for _, item := range result.Result {
@@ -85,8 +90,8 @@ func (tb *TelegramBot) fromPolling(channel chan string, offset *int64) {
 		log.Printf("TelegramBot: from: \"%s\"", message)
 		newOffset = item.UpdateID + 1
 
-		// Prevent re-sending the historic of messages that happens when first
-		// polling without an offset
+		// Prevent re-sending the whole history of messages on the first run
+		// since the offset is not determined yet
 		if *offset != 0 {
 			channel <- message
 		}
@@ -115,7 +120,7 @@ func (tb *TelegramBot) InitTo(channel chan string) {
 		jsonData, err := json.Marshal(data)
 		if err != nil {
 			log.Println("TelegramBot: InitTo: error serialiazing JSON")
-			return
+			continue
 		}
 
 		url := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", tb.Token)
@@ -123,12 +128,12 @@ func (tb *TelegramBot) InitTo(channel chan string) {
 		resp, err := client.Post(url, "application/json", bytes.NewBuffer(jsonData))
 		if err != nil {
 			log.Println("TelegramBot: InitTo: error posting to Telegram Bot API")
-			return
+			continue
 		}
 
 		if resp.StatusCode != http.StatusOK {
 			log.Printf("TelegramBot: InitTo: status code: %d", resp.StatusCode)
-			return
+			continue
 		}
 	}
 }
