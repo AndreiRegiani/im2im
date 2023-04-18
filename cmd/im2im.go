@@ -35,12 +35,12 @@ func runBridges() {
 
 		channel := make(chan string)
 
-		if bridge.From.Netcat != nil {
-			go bridge.From.Netcat.InitFrom(channel)
+		if bridge.From.TCP != nil {
+			go bridge.From.TCP.InitFrom(channel)
 		}
 
-		if bridge.To.Netcat != nil {
-			go bridge.To.Netcat.InitTo(channel)
+		if bridge.To.TCP != nil {
+			go bridge.To.TCP.InitTo(channel)
 		}
 
 		if bridge.From.TelegramBot != nil {

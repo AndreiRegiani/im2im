@@ -8,12 +8,12 @@ import (
 	"time"
 )
 
-type Netcat struct {
+type TCP struct {
 	Port int `yaml:"port"`
 }
 
-func (t *Netcat) InitFrom(channel chan string) {
-	log.Printf("Netcat: InitFrom: port=%d", t.Port)
+func (t *TCP) InitFrom(channel chan string) {
+	log.Printf("TCP: InitFrom: port=%d", t.Port)
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", t.Port))
 	if err != nil {
@@ -27,12 +27,12 @@ func (t *Netcat) InitFrom(channel chan string) {
 	}
 	defer conn.Close()
 
-	log.Printf("Netcat: connection accepted: %s", conn.RemoteAddr().String())
+	log.Printf("TCP: connection accepted: %s", conn.RemoteAddr().String())
 
 	scanner := bufio.NewScanner(conn)
 	for scanner.Scan() {
 		message := scanner.Text()
-		log.Printf("Netcat: from: \"%s\"", message)
+		log.Printf("TCP: from: \"%s\"", message)
 		channel <- message
 	}
 
@@ -41,8 +41,8 @@ func (t *Netcat) InitFrom(channel chan string) {
 	}
 }
 
-func (t *Netcat) InitTo(channel chan string) {
-	log.Printf("Netcat: InitTo: port=%d", t.Port)
+func (t *TCP) InitTo(channel chan string) {
+	log.Printf("TCP: InitTo: port=%d", t.Port)
 
 	for {
 		t.initConnection(channel)
@@ -50,7 +50,7 @@ func (t *Netcat) InitTo(channel chan string) {
 	}
 }
 
-func (t *Netcat) initConnection(channel chan string) {
+func (t *TCP) initConnection(channel chan string) {
 	var conn net.Conn
 	var err error
 
@@ -62,7 +62,7 @@ func (t *Netcat) initConnection(channel chan string) {
 
 	defer conn.Close()
 
-	log.Printf("Netcat: connection accepted: %s", conn.RemoteAddr().String())
+	log.Printf("TCP: connection accepted: %s", conn.RemoteAddr().String())
 
 	for {
 		message := <-channel
@@ -72,6 +72,6 @@ func (t *Netcat) initConnection(channel chan string) {
 			return
 		}
 
-		log.Printf("Netcat: to: \"%s\"", message)
+		log.Printf("TCP: to: \"%s\"", message)
 	}
 }

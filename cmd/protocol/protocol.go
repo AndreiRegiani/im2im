@@ -6,11 +6,11 @@ type Config struct {
 
 type Bridge struct {
 	From struct {
-		Netcat      *Netcat      `yaml:"netcat,omitempty"`
+		TCP         *TCP         `yaml:"tcp,omitempty"`
 		TelegramBot *TelegramBot `yaml:"telegram_bot,omitempty"`
 	} `yaml:"from"`
 	To struct {
-		Netcat      *Netcat      `yaml:"netcat,omitempty"`
+		TCP         *TCP         `yaml:"tcp,omitempty"`
 		TelegramBot *TelegramBot `yaml:"telegram_bot,omitempty"`
 	} `yaml:"to"`
 }

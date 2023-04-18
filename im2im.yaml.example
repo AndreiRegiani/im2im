@@ -1,7 +1,7 @@
 bridges:
   bridge1:
       from:
-        netcat:
+        tcp:
           port: 9001
       to:
         telegram_bot:
@@ -13,5 +13,5 @@ bridges:
           token: ABCDEFGHIJKLMNOPQRSTUVWXYZ
           chat_id: 123456789
     to:
-      netcat:
+      tcp:
           port: 9002
