@@ -2,11 +2,16 @@
 
 Proof of Concept: daemon to bridge between two instant messaging protocols.
 
-The service listens for incoming messages on a given protocol and forwards them to another protocol. It's designed to be extensible to support the addition of new protocols and configuring their usage via a configuration file (YAML).
+The service listens for incoming messages on a given protocol and forwards them to another protocol. It's designed to be extensible to support the addition of new protocols and configuring their usage via a configuration file (YAML), any amount of bridges can be run at the same time within the same process.
+
+## Supported protocols
+
+* TCP
+* Telegram Bot
 
 ## Overview
 
-Example for sending and receiving messages between netcat ⇔ Telegram Bot API.
+Example for sending and receiving messages between TCP socket ⇔ Telegram Bot API, using a microcontroller (thin client) in LAN with a Raspberry Pi (running im2im):
 
 ![Alt text](./assets/overview.png "Overview")
 
@@ -16,7 +21,7 @@ Example for sending and receiving messages between netcat ⇔ Telegram Bot API.
 bridges:
   bridge1:
       from:
-        netcat:
+        tcp:
           port: 9001
       to:
         telegram_bot:
@@ -28,13 +33,9 @@ bridges:
           token: ABCDEFGHIJKLMNOPQRSTUVWXYZ
           chat_id: 123456789
     to:
-      netcat:
+      tcp:
           port: 9002
 ```
-
-## Implementation
-
-* Go 1.20, each bridge spawns two goroutines (sender/receiver) and uses one channel to relay the message.
 
 ## Installation
 
@@ -64,32 +65,32 @@ Minimal example:
 bridges:
   bridge0:
       from:
-        netcat:
+        tcp:
           port: 9001
       to:
-        netcat:
+        tcp:
           port: 9002
 ```
 
 ### Connecting
 
+Using Netcat as TCP client and server.
+
 ```bash
-nc -l 9002
+nc -l 9002  # server
 ```
 
 ```bash
-go run cmd/im2im.go
+make run  # daemon
 ```
 
 ```bash
-nc localhost 9001
+nc localhost 9001  # client
 ```
 
-## Supported protocols
+## Implementation
 
-* netcat (TCP socket)
-* Telegram Bot
-* ...
+* Go 1.20, each bridge spawns two goroutines (sender/receiver) and uses one channel to pass the message.
 
 ## Contributing
 
