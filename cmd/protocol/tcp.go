@@ -9,13 +9,14 @@ import (
 )
 
 type TCP struct {
-	Port int `yaml:"port"`
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
 }
 
 func (t *TCP) InitFrom(channel chan string) {
-	log.Printf("TCP: InitFrom: port=%d", t.Port)
+	log.Printf("TCP: InitFrom: %s:%d", t.Host, t.Port)
 
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", t.Port))
+	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", t.Host, t.Port))
 	if err != nil {
 		log.Fatalf("Error creating listener: %v\n", err)
 	}
@@ -42,7 +43,7 @@ func (t *TCP) InitFrom(channel chan string) {
 }
 
 func (t *TCP) InitTo(channel chan string) {
-	log.Printf("TCP: InitTo: port=%d", t.Port)
+	log.Printf("TCP: InitTo: %s:%d", t.Host, t.Port)
 
 	for {
 		t.initConnection(channel)
@@ -54,7 +55,7 @@ func (t *TCP) initConnection(channel chan string) {
 	var conn net.Conn
 	var err error
 
-	conn, err = net.Dial("tcp", fmt.Sprintf(":%d", t.Port))
+	conn, err = net.Dial("tcp", fmt.Sprintf("%s:%d", t.Host, t.Port))
 	if err != nil {
 		fmt.Println("Error connecting:", err.Error())
 		return

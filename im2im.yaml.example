@@ -2,6 +2,7 @@ bridges:
   bridge1:
       from:
         tcp:
+          host: localhost
           port: 9001
       to:
         telegram_bot:
@@ -14,4 +15,5 @@ bridges:
           chat_id: 123456789
     to:
       tcp:
+          host: localhost
           port: 9002

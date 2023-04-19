@@ -22,6 +22,7 @@ bridges:
   bridge1:
       from:
         tcp:
+          host: ""  # daemon listens on all interfaces (reachable in LAN)
           port: 9001
       to:
         telegram_bot:
@@ -34,6 +35,7 @@ bridges:
           chat_id: 123456789
     to:
       tcp:
+          host: 192.168.1.50  # microcontroller IP address in LAN
           port: 9002
 ```
 
@@ -66,9 +68,11 @@ bridges:
   bridge0:
       from:
         tcp:
+          host: localhost
           port: 9001
       to:
         tcp:
+          host: localhost
           port: 9002
 ```
 
