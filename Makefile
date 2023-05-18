@@ -36,3 +36,11 @@ install:
 docker-build:
 	@echo "Building Docker image..."
 	@docker build -t $(IMAGE_NAME) .
+
+.PHONY: lint
+lint:
+	@golint  ./cmd/...
+
+.PHONY: ci-lint
+ci-lint:
+	@golangci-lint run ./cmd/...
