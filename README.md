@@ -1,6 +1,6 @@
 # im2im
 
-Proof of Concept: daemon to bridge between two instant messaging protocols.
+Daemon to bridge between two instant messaging protocols.
 
 The service listens for incoming messages on a given protocol and forwards them to another protocol. It's designed to be extensible to support the addition of new protocols and configuring their usage via a configuration file (YAML), any amount of bridges can be run at the same time within the same process.
 
